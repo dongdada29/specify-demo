@@ -1,0 +1,28 @@
+# specify-demo Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2025-09-24
+
+## Active Technologies
+- C# 12.0, .NET 8.0 + .NET Aspire, Blazor Server, Entity Framework Core, SignalR, PostgreSQL (002-develop-taskify-a)
+- JavaScript ES2022, HTML5, CSS3 + Vite, SQLite3, WebSocket API, HTML5 Drag and Drop API (002-develop-taskify-a)
+- SQLite database with local file storage (002-develop-taskify-a)
+
+## Project Structure
+```
+backend/
+frontend/
+tests/
+```
+
+## Commands
+# Add commands for C# 12.0, .NET 8.0
+
+## Code Style
+C# 12.0, .NET 8.0: Follow standard conventions
+
+## Recent Changes
+- 002-develop-taskify-a: Added JavaScript ES2022, HTML5, CSS3 + Vite, SQLite3, WebSocket API, HTML5 Drag and Drop API
+- 002-develop-taskify-a: Added C# 12.0, .NET 8.0 + .NET Aspire, Blazor Server, Entity Framework Core, SignalR, PostgreSQL
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->

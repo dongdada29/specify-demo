@@ -1,0 +1,282 @@
+openapi: 3.0.3
+info:
+  title: Taskify Projects API
+  description: API for managing projects in Taskify
+  version: 1.0.0
+  contact:
+    name: Taskify Team
+    email: team@taskify.com
+
+servers:
+  - url: https://api.taskify.com/v1
+    description: Production server
+  - url: https://staging-api.taskify.com/v1
+    description: Staging server
+
+paths:
+  /projects:
+    get:
+      summary: Get all projects
+      description: Retrieve a list of all active projects
+      operationId: getProjects
+      tags:
+        - Projects
+      responses:
+        "200":
+          description: Successfully retrieved projects
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projects:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Project"
+                  totalCount:
+                    type: integer
+                    example: 3
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    post:
+      summary: Create a new project
+      description: Create a new project with the provided details
+      operationId: createProject
+      tags:
+        - Projects
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProjectRequest"
+      responses:
+        "201":
+          description: Project created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "400":
+          description: Bad request - validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /projects/{projectId}:
+    get:
+      summary: Get project by ID
+      description: Retrieve a specific project by its ID
+      operationId: getProject
+      tags:
+        - Projects
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+          description: The project ID
+      responses:
+        "200":
+          description: Successfully retrieved project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "404":
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      summary: Update project
+      description: Update an existing project
+      operationId: updateProject
+      tags:
+        - Projects
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+          description: The project ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProjectRequest"
+      responses:
+        "200":
+          description: Project updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "400":
+          description: Bad request - validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "404":
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      summary: Delete project
+      description: Soft delete a project (mark as inactive)
+      operationId: deleteProject
+      tags:
+        - Projects
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+          description: The project ID
+      responses:
+        "204":
+          description: Project deleted successfully
+        "404":
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    Project:
+      type: object
+      required:
+        - id
+        - name
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 1
+        name:
+          type: string
+          maxLength: 200
+          example: "Website Redesign"
+        description:
+          type: string
+          maxLength: 1000
+          nullable: true
+          example: "Modernize the company website with new design and features"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-12-19T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-12-19T15:30:00Z"
+        isActive:
+          type: boolean
+          example: true
+
+    CreateProjectRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          maxLength: 200
+          example: "Website Redesign"
+        description:
+          type: string
+          maxLength: 1000
+          example: "Modernize the company website with new design and features"
+
+    UpdateProjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 200
+          example: "Website Redesign v2"
+        description:
+          type: string
+          maxLength: 1000
+          example: "Updated project description"
+
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: "An error occurred"
+        details:
+          type: string
+          nullable: true
+          example: "Additional error details"
+
+    ValidationError:
+      type: object
+      required:
+        - message
+        - errors
+      properties:
+        message:
+          type: string
+          example: "Validation failed"
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                example: "name"
+              message:
+                type: string
+                example: "Name is required"

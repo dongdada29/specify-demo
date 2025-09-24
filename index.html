@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taskify - Team Productivity Platform</title>
+    <link rel="stylesheet" href="./src/styles/main.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- User Selection Page -->
+        <div id="user-selection" class="page active">
+            <div class="container">
+                <header class="header">
+                    <h1>Taskify</h1>
+                    <p class="subtitle">Team Productivity Platform</p>
+                </header>
+
+                <main class="main">
+                    <div class="user-selection">
+                        <h2>Select Your Identity</h2>
+                        <p>Choose your role to access the task management system</p>
+
+                        <div class="user-grid" id="user-grid">
+                            <!-- Users will be dynamically loaded here -->
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <!-- Project List Page -->
+        <div id="project-list" class="page">
+            <div class="container">
+                <header class="header">
+                    <h1>Taskify</h1>
+                    <div class="user-info">
+                        <span class="user-name" id="current-user-name"></span>
+                        <button id="switch-user" class="btn btn-secondary">Switch User</button>
+                    </div>
+                </header>
+
+                <main class="main">
+                    <div class="project-list">
+                        <h2>Projects</h2>
+                        <div class="project-grid" id="project-grid">
+                            <!-- Projects will be dynamically loaded here -->
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <!-- Kanban Board Page -->
+        <div id="kanban-board" class="page">
+            <div class="container">
+                <header class="header">
+                    <h1>Taskify</h1>
+                    <div class="breadcrumb">
+                        <span id="current-project-name"></span>
+                        <button id="back-to-projects" class="btn btn-secondary">← Back to Projects</button>
+                    </div>
+                </header>
+
+                <main class="main">
+                    <div class="kanban-board" id="kanban-board">
+                        <div class="kanban-column" data-status="1">
+                            <h3>To Do</h3>
+                            <div class="task-list" id="todo-tasks"></div>
+                        </div>
+                        <div class="kanban-column" data-status="2">
+                            <h3>In Progress</h3>
+                            <div class="task-list" id="inprogress-tasks"></div>
+                        </div>
+                        <div class="kanban-column" data-status="3">
+                            <h3>In Review</h3>
+                            <div class="task-list" id="inreview-tasks"></div>
+                        </div>
+                        <div class="kanban-column" data-status="4">
+                            <h3>Done</h3>
+                            <div class="task-list" id="done-tasks"></div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <!-- Task Detail Modal -->
+        <div id="task-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="task-modal-title">Task Details</h3>
+                    <button id="close-modal" class="btn btn-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="task-details">
+                        <div class="task-title">
+                            <h4 id="task-title"></h4>
+                        </div>
+                        <div class="task-description">
+                            <p id="task-description"></p>
+                        </div>
+                        <div class="task-assignment">
+                            <label for="task-assignee">Assigned to:</label>
+                            <select id="task-assignee">
+                                <option value="">Unassigned</option>
+                            </select>
+                        </div>
+                        <div class="task-comments">
+                            <h5>Comments</h5>
+                            <div class="comment-list" id="comment-list"></div>
+                            <div class="comment-form">
+                                <textarea id="new-comment" placeholder="Add a comment..."></textarea>
+                                <button id="add-comment" class="btn btn-primary">Add Comment</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification System -->
+        <div id="notifications" class="notifications"></div>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+</body>
+
+</html>

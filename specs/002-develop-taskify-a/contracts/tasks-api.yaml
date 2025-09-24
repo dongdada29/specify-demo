@@ -1,0 +1,509 @@
+openapi: 3.0.3
+info:
+  title: Taskify Tasks API
+  description: API for managing tasks in Taskify
+  version: 1.0.0
+  contact:
+    name: Taskify Team
+    email: team@taskify.com
+
+servers:
+  - url: https://api.taskify.com/v1
+    description: Production server
+  - url: https://staging-api.taskify.com/v1
+    description: Staging server
+
+paths:
+  /projects/{projectId}/tasks:
+    get:
+      summary: Get tasks for a project
+      description: Retrieve all tasks for a specific project
+      operationId: getProjectTasks
+      tags:
+        - Tasks
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+          description: The project ID
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/TaskStatus"
+          description: Filter by task status
+        - name: assignedUserId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+          description: Filter by assigned user ID
+      responses:
+        "200":
+          description: Successfully retrieved tasks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tasks:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Task"
+                  totalCount:
+                    type: integer
+                    example: 12
+        "404":
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    post:
+      summary: Create a new task
+      description: Create a new task in a project
+      operationId: createTask
+      tags:
+        - Tasks
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+          description: The project ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTaskRequest"
+      responses:
+        "201":
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "400":
+          description: Bad request - validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "404":
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /tasks/{taskId}:
+    get:
+      summary: Get task by ID
+      description: Retrieve a specific task by its ID
+      operationId: getTask
+      tags:
+        - Tasks
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+          description: The task ID
+      responses:
+        "200":
+          description: Successfully retrieved task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "404":
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      summary: Update task
+      description: Update an existing task
+      operationId: updateTask
+      tags:
+        - Tasks
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+          description: The task ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTaskRequest"
+      responses:
+        "200":
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "400":
+          description: Bad request - validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "404":
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      summary: Delete task
+      description: Soft delete a task (mark as inactive)
+      operationId: deleteTask
+      tags:
+        - Tasks
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+          description: The task ID
+      responses:
+        "204":
+          description: Task deleted successfully
+        "404":
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /tasks/{taskId}/move:
+    put:
+      summary: Move task to different status
+      description: Move a task to a different status column (drag and drop)
+      operationId: moveTask
+      tags:
+        - Tasks
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+          description: The task ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MoveTaskRequest"
+      responses:
+        "200":
+          description: Task moved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "400":
+          description: Bad request - validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "404":
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /tasks/{taskId}/assign:
+    put:
+      summary: Assign task to user
+      description: Assign or reassign a task to a user
+      operationId: assignTask
+      tags:
+        - Tasks
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+          description: The task ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignTaskRequest"
+      responses:
+        "200":
+          description: Task assigned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "400":
+          description: Bad request - validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "404":
+          description: Task or user not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    Task:
+      type: object
+      required:
+        - id
+        - title
+        - status
+        - projectId
+        - createdAt
+        - updatedAt
+        - order
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 1
+        title:
+          type: string
+          maxLength: 200
+          example: "Design new homepage layout"
+        description:
+          type: string
+          maxLength: 2000
+          nullable: true
+          example: "Create a modern, responsive homepage layout with improved UX"
+        status:
+          $ref: "#/components/schemas/TaskStatus"
+        projectId:
+          type: integer
+          format: int32
+          example: 1
+        assignedUserId:
+          type: integer
+          format: int32
+          nullable: true
+          example: 2
+        assignedUser:
+          $ref: "#/components/schemas/User"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-12-19T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-12-19T15:30:00Z"
+        order:
+          type: integer
+          format: int32
+          example: 1
+        isActive:
+          type: boolean
+          example: true
+
+    TaskStatus:
+      type: string
+      enum:
+        - ToDo
+        - InProgress
+        - InReview
+        - Done
+      example: "InProgress"
+
+    User:
+      type: object
+      required:
+        - id
+        - name
+        - role
+        - color
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 2
+        name:
+          type: string
+          maxLength: 100
+          example: "Bob Smith"
+        role:
+          $ref: "#/components/schemas/UserRole"
+        color:
+          type: string
+          maxLength: 7
+          example: "#4ECDC4"
+
+    UserRole:
+      type: string
+      enum:
+        - ProductManager
+        - Engineer
+      example: "Engineer"
+
+    CreateTaskRequest:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          maxLength: 200
+          example: "Design new homepage layout"
+        description:
+          type: string
+          maxLength: 2000
+          example: "Create a modern, responsive homepage layout with improved UX"
+        assignedUserId:
+          type: integer
+          format: int32
+          nullable: true
+          example: 2
+
+    UpdateTaskRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 200
+          example: "Design new homepage layout v2"
+        description:
+          type: string
+          maxLength: 2000
+          example: "Updated task description"
+        assignedUserId:
+          type: integer
+          format: int32
+          nullable: true
+          example: 3
+
+    MoveTaskRequest:
+      type: object
+      required:
+        - status
+        - order
+      properties:
+        status:
+          $ref: "#/components/schemas/TaskStatus"
+        order:
+          type: integer
+          format: int32
+          minimum: 0
+          example: 2
+
+    AssignTaskRequest:
+      type: object
+      properties:
+        assignedUserId:
+          type: integer
+          format: int32
+          nullable: true
+          example: 2
+
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: "An error occurred"
+        details:
+          type: string
+          nullable: true
+          example: "Additional error details"
+
+    ValidationError:
+      type: object
+      required:
+        - message
+        - errors
+      properties:
+        message:
+          type: string
+          example: "Validation failed"
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                example: "title"
+              message:
+                type: string
+                example: "Title is required"
