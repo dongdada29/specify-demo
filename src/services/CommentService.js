@@ -1,6 +1,5 @@
 // Comment service for Taskify
 import { Comment } from '../models/Comment.js';
-import { DatabaseService } from './DatabaseService.js';
 
 export class CommentService {
   constructor(databaseService) {
@@ -16,83 +15,84 @@ export class CommentService {
       throw new Error(`Validation failed: ${errors.join(', ')}`);
     }
 
-    const result = await this.db.run(
-      'INSERT INTO comments (content, task_id, author_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?)',
-      [
-        comment.content,
-        comment.taskId,
-        comment.authorId,
-        comment.createdAt,
-        comment.updatedAt,
-      ]
-    );
+    const commentDataToStore = {
+      content: comment.content,
+      task_id: comment.taskId,
+      author_id: comment.authorId,
+      created_at: comment.createdAt,
+      updated_at: comment.updatedAt,
+      is_active: 1
+    };
 
-    comment.id = result.id;
+    const id = await this.db.add('comments', commentDataToStore);
+    comment.id = id;
     return comment;
   }
 
   // Get comment by ID
   async getCommentById(id) {
-    const row = await this.db.get(
-      `
-      SELECT c.*, u.name as author_name, u.color as author_color
-      FROM comments c
-      LEFT JOIN users u ON c.author_id = u.id
-      WHERE c.id = ? AND c.is_active = 1
-    `,
-      [id]
-    );
+    const row = await this.db.get('comments', id);
+    if (!row) return null;
 
-    if (!row) {
-      return null;
-    }
-
-    return this.mapRowToComment(row);
-  }
-
-  // Get comments by task
-  async getCommentsByTask(taskId) {
-    const rows = await this.db.all(
-      `
-      SELECT c.*, u.name as author_name, u.color as author_color
-      FROM comments c
-      LEFT JOIN users u ON c.author_id = u.id
-      WHERE c.task_id = ? AND c.is_active = 1
-      ORDER BY c.created_at ASC
-    `,
-      [taskId]
-    );
-
-    return rows.map(row => this.mapRowToComment(row));
-  }
-
-  // Get comments by author
-  async getCommentsByAuthor(authorId) {
-    const rows = await this.db.all(
-      `
-      SELECT c.*, u.name as author_name, u.color as author_color
-      FROM comments c
-      LEFT JOIN users u ON c.author_id = u.id
-      WHERE c.author_id = ? AND c.is_active = 1
-      ORDER BY c.created_at DESC
-    `,
-      [authorId]
-    );
-
-    return rows.map(row => this.mapRowToComment(row));
+    return new Comment({
+      id: row.id,
+      content: row.content,
+      taskId: row.task_id,
+      authorId: row.author_id,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      isActive: row.is_active === 1
+    });
   }
 
   // Get all comments
   async getAllComments() {
-    const rows = await this.db.all(`
-      SELECT c.*, u.name as author_name, u.color as author_color
-      FROM comments c
-      LEFT JOIN users u ON c.author_id = u.id
-      WHERE c.is_active = 1
-      ORDER BY c.created_at DESC
-    `);
+    const rows = await this.db.getAll('comments');
+    return rows
+      .filter(row => row.is_active === 1)
+      .map(row => new Comment({
+        id: row.id,
+        content: row.content,
+        taskId: row.task_id,
+        authorId: row.author_id,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+        isActive: row.is_active === 1
+      }));
+  }
 
-    return rows.map(row => this.mapRowToComment(row));
+  // Get comments by task
+  async getCommentsByTask(taskId) {
+    const rows = await this.db.getAllByIndex('comments', 'task_id', taskId);
+    return rows
+      .filter(row => row.is_active === 1)
+      .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+      .map(row => new Comment({
+        id: row.id,
+        content: row.content,
+        taskId: row.task_id,
+        authorId: row.author_id,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+        isActive: row.is_active === 1
+      }));
+  }
+
+  // Get comments by author
+  async getCommentsByAuthor(authorId) {
+    const rows = await this.db.getAllByIndex('comments', 'author_id', authorId);
+    return rows
+      .filter(row => row.is_active === 1)
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .map(row => new Comment({
+        id: row.id,
+        content: row.content,
+        taskId: row.task_id,
+        authorId: row.author_id,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+        isActive: row.is_active === 1
+      }));
   }
 
   // Update comment
@@ -109,13 +109,17 @@ export class CommentService {
       throw new Error(`Validation failed: ${errors.join(', ')}`);
     }
 
-    updatedComment.updatedAt = new Date().toISOString();
+    const commentDataToStore = {
+      id: id,
+      content: updatedComment.content,
+      task_id: updatedComment.taskId,
+      author_id: updatedComment.authorId,
+      created_at: updatedComment.createdAt,
+      updated_at: new Date().toISOString(),
+      is_active: updatedComment.isActive ? 1 : 0
+    };
 
-    await this.db.run(
-      'UPDATE comments SET content = ?, updated_at = ? WHERE id = ?',
-      [updatedComment.content, updatedComment.updatedAt, id]
-    );
-
+    await this.db.update('comments', commentDataToStore);
     return updatedComment;
   }
 
@@ -126,187 +130,45 @@ export class CommentService {
       throw new Error('Comment not found');
     }
 
-    await this.db.run('UPDATE comments SET is_active = 0 WHERE id = ?', [id]);
+    const commentDataToStore = {
+      id: id,
+      content: comment.content,
+      task_id: comment.taskId,
+      author_id: comment.authorId,
+      created_at: comment.createdAt,
+      updated_at: new Date().toISOString(),
+      is_active: 0
+    };
 
+    await this.db.update('comments', commentDataToStore);
     return true;
   }
 
-  // Hard delete comment
-  async hardDeleteComment(id) {
-    await this.db.run('DELETE FROM comments WHERE id = ?', [id]);
-    return true;
-  }
+  // Get comment statistics
+  async getCommentStats() {
+    const comments = await this.getAllComments();
+    const totalComments = comments.length;
+    const recentComments = comments.filter(c => {
+      const commentDate = new Date(c.createdAt);
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return commentDate > weekAgo;
+    }).length;
 
-  // Check if comment exists
-  async commentExists(id) {
-    const comment = await this.getCommentById(id);
-    return comment !== null;
-  }
-
-  // Get comment count by task
-  async getCommentCountByTask(taskId) {
-    const result = await this.db.get(
-      'SELECT COUNT(*) as count FROM comments WHERE task_id = ? AND is_active = 1',
-      [taskId]
-    );
-
-    return result.count;
-  }
-
-  // Get comment count by author
-  async getCommentCountByAuthor(authorId) {
-    const result = await this.db.get(
-      'SELECT COUNT(*) as count FROM comments WHERE author_id = ? AND is_active = 1',
-      [authorId]
-    );
-
-    return result.count;
+    return {
+      totalComments,
+      recentComments,
+      averageCommentsPerTask: totalComments > 0 ? totalComments / new Set(comments.map(c => c.taskId)).size : 0
+    };
   }
 
   // Search comments
   async searchComments(query) {
-    const rows = await this.db.all(
-      `
-      SELECT c.*, u.name as author_name, u.color as author_color
-      FROM comments c
-      LEFT JOIN users u ON c.author_id = u.id
-      WHERE c.content LIKE ? AND c.is_active = 1
-      ORDER BY c.created_at DESC
-    `,
-      [`%${query}%`]
+    const comments = await this.getAllComments();
+    const lowercaseQuery = query.toLowerCase();
+
+    return comments.filter(comment =>
+      comment.content.toLowerCase().includes(lowercaseQuery)
     );
-
-    return rows.map(row => this.mapRowToComment(row));
-  }
-
-  // Get recent comments
-  async getRecentComments(limit = 10) {
-    const rows = await this.db.all(
-      `
-      SELECT c.*, u.name as author_name, u.color as author_color
-      FROM comments c
-      LEFT JOIN users u ON c.author_id = u.id
-      WHERE c.is_active = 1
-      ORDER BY c.created_at DESC
-      LIMIT ?
-    `,
-      [limit]
-    );
-
-    return rows.map(row => this.mapRowToComment(row));
-  }
-
-  // Get comments by date range
-  async getCommentsByDateRange(startDate, endDate) {
-    const rows = await this.db.all(
-      `
-      SELECT c.*, u.name as author_name, u.color as author_color
-      FROM comments c
-      LEFT JOIN users u ON c.author_id = u.id
-      WHERE c.created_at BETWEEN ? AND ? AND c.is_active = 1
-      ORDER BY c.created_at DESC
-    `,
-      [startDate, endDate]
-    );
-
-    return rows.map(row => this.mapRowToComment(row));
-  }
-
-  // Get comment statistics
-  async getCommentStatistics() {
-    const totalComments = await this.db.get(
-      'SELECT COUNT(*) as count FROM comments WHERE is_active = 1'
-    );
-
-    const commentsToday = await this.db.get(`
-      SELECT COUNT(*) as count 
-      FROM comments 
-      WHERE DATE(created_at) = DATE('now') AND is_active = 1
-    `);
-
-    const commentsThisWeek = await this.db.get(`
-      SELECT COUNT(*) as count 
-      FROM comments 
-      WHERE created_at >= DATE('now', '-7 days') AND is_active = 1
-    `);
-
-    return {
-      totalComments: totalComments.count,
-      commentsToday: commentsToday.count,
-      commentsThisWeek: commentsThisWeek.count,
-    };
-  }
-
-  // Helper method to map database row to Comment object
-  mapRowToComment(row) {
-    return new Comment({
-      id: row.id,
-      content: row.content,
-      taskId: row.task_id,
-      authorId: row.author_id,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-      isActive: row.is_active === 1,
-      authorName: row.author_name,
-      authorColor: row.author_color,
-    });
-  }
-
-  // Validation helpers
-  validateCommentData(commentData) {
-    const comment = new Comment(commentData);
-    return comment.validate();
-  }
-
-  // Utility methods
-  async getActiveComments() {
-    return this.getAllComments();
-  }
-
-  async getInactiveComments() {
-    const rows = await this.db.all(`
-      SELECT c.*, u.name as author_name, u.color as author_color
-      FROM comments c
-      LEFT JOIN users u ON c.author_id = u.id
-      WHERE c.is_active = 0
-      ORDER BY c.created_at DESC
-    `);
-
-    return rows.map(row => this.mapRowToComment(row));
-  }
-
-  async restoreComment(id) {
-    await this.db.run('UPDATE comments SET is_active = 1 WHERE id = ?', [id]);
-
-    return this.getCommentById(id);
-  }
-
-  // Get comments with pagination
-  async getCommentsWithPagination(taskId, page = 1, limit = 20) {
-    const offset = (page - 1) * limit;
-
-    const rows = await this.db.all(
-      `
-      SELECT c.*, u.name as author_name, u.color as author_color
-      FROM comments c
-      LEFT JOIN users u ON c.author_id = u.id
-      WHERE c.task_id = ? AND c.is_active = 1
-      ORDER BY c.created_at ASC
-      LIMIT ? OFFSET ?
-    `,
-      [taskId, limit, offset]
-    );
-
-    const totalCount = await this.getCommentCountByTask(taskId);
-
-    return {
-      comments: rows.map(row => this.mapRowToComment(row)),
-      pagination: {
-        page,
-        limit,
-        total: totalCount,
-        pages: Math.ceil(totalCount / limit),
-      },
-    };
   }
 }

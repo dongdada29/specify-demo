@@ -17,9 +17,7 @@
         "format": "prettier --write src tests",
         "format:check": "prettier --check src tests"
     },
-    "dependencies": {
-        "sqlite3": "^5.1.6"
-    },
+  "dependencies": {},
     "devDependencies": {
         "@playwright/test": "^1.40.0",
         "@types/jest": "^29.5.8",
