@@ -24,7 +24,7 @@ export class TaskService {
       created_at: task.createdAt,
       updated_at: task.updatedAt,
       order_index: task.orderIndex,
-      is_active: 1
+      is_active: 1,
     };
 
     const id = await this.db.add('tasks', taskDataToStore);
@@ -47,7 +47,7 @@ export class TaskService {
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       orderIndex: row.order_index,
-      isActive: row.is_active === 1
+      isActive: row.is_active === 1,
     });
   }
 
@@ -56,18 +56,21 @@ export class TaskService {
     const rows = await this.db.getAll('tasks');
     return rows
       .filter(row => row.is_active === 1)
-      .map(row => new Task({
-        id: row.id,
-        title: row.title,
-        description: row.description,
-        status: row.status,
-        projectId: row.project_id,
-        assignedUserId: row.assigned_user_id,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-        orderIndex: row.order_index,
-        isActive: row.is_active === 1
-      }));
+      .map(
+        row =>
+          new Task({
+            id: row.id,
+            title: row.title,
+            description: row.description,
+            status: row.status,
+            projectId: row.project_id,
+            assignedUserId: row.assigned_user_id,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at,
+            orderIndex: row.order_index,
+            isActive: row.is_active === 1,
+          })
+      );
   }
 
   // Get tasks by project
@@ -75,18 +78,21 @@ export class TaskService {
     const rows = await this.db.getAllByIndex('tasks', 'project_id', projectId);
     return rows
       .filter(row => row.is_active === 1)
-      .map(row => new Task({
-        id: row.id,
-        title: row.title,
-        description: row.description,
-        status: row.status,
-        projectId: row.project_id,
-        assignedUserId: row.assigned_user_id,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-        orderIndex: row.order_index,
-        isActive: row.is_active === 1
-      }));
+      .map(
+        row =>
+          new Task({
+            id: row.id,
+            title: row.title,
+            description: row.description,
+            status: row.status,
+            projectId: row.project_id,
+            assignedUserId: row.assigned_user_id,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at,
+            orderIndex: row.order_index,
+            isActive: row.is_active === 1,
+          })
+      );
   }
 
   // Get tasks by status
@@ -94,37 +100,47 @@ export class TaskService {
     const rows = await this.db.getAllByIndex('tasks', 'status', status);
     return rows
       .filter(row => row.is_active === 1)
-      .map(row => new Task({
-        id: row.id,
-        title: row.title,
-        description: row.description,
-        status: row.status,
-        projectId: row.project_id,
-        assignedUserId: row.assigned_user_id,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-        orderIndex: row.order_index,
-        isActive: row.is_active === 1
-      }));
+      .map(
+        row =>
+          new Task({
+            id: row.id,
+            title: row.title,
+            description: row.description,
+            status: row.status,
+            projectId: row.project_id,
+            assignedUserId: row.assigned_user_id,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at,
+            orderIndex: row.order_index,
+            isActive: row.is_active === 1,
+          })
+      );
   }
 
   // Get tasks by assigned user
   async getTasksByAssignedUser(userId) {
-    const rows = await this.db.getAllByIndex('tasks', 'assigned_user_id', userId);
+    const rows = await this.db.getAllByIndex(
+      'tasks',
+      'assigned_user_id',
+      userId
+    );
     return rows
       .filter(row => row.is_active === 1)
-      .map(row => new Task({
-        id: row.id,
-        title: row.title,
-        description: row.description,
-        status: row.status,
-        projectId: row.project_id,
-        assignedUserId: row.assigned_user_id,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-        orderIndex: row.order_index,
-        isActive: row.is_active === 1
-      }));
+      .map(
+        row =>
+          new Task({
+            id: row.id,
+            title: row.title,
+            description: row.description,
+            status: row.status,
+            projectId: row.project_id,
+            assignedUserId: row.assigned_user_id,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at,
+            orderIndex: row.order_index,
+            isActive: row.is_active === 1,
+          })
+      );
   }
 
   // Update task
@@ -151,7 +167,7 @@ export class TaskService {
       created_at: updatedTask.createdAt,
       updated_at: new Date().toISOString(),
       order_index: updatedTask.orderIndex,
-      is_active: updatedTask.isActive ? 1 : 0
+      is_active: updatedTask.isActive ? 1 : 0,
     };
 
     await this.db.update('tasks', taskDataToStore);
@@ -178,7 +194,7 @@ export class TaskService {
       created_at: task.createdAt,
       updated_at: task.updatedAt,
       order_index: task.orderIndex,
-      is_active: task.isActive ? 1 : 0
+      is_active: task.isActive ? 1 : 0,
     };
 
     await this.db.update('tasks', taskDataToStore);
@@ -205,7 +221,7 @@ export class TaskService {
       created_at: task.createdAt,
       updated_at: task.updatedAt,
       order_index: task.orderIndex,
-      is_active: task.isActive ? 1 : 0
+      is_active: task.isActive ? 1 : 0,
     };
 
     await this.db.update('tasks', taskDataToStore);
@@ -230,7 +246,7 @@ export class TaskService {
           created_at: task.createdAt,
           updated_at: task.updatedAt,
           order_index: task.orderIndex,
-          is_active: task.isActive ? 1 : 0
+          is_active: task.isActive ? 1 : 0,
         };
 
         await this.db.update('tasks', taskDataToStore);
@@ -255,7 +271,7 @@ export class TaskService {
       created_at: task.createdAt,
       updated_at: new Date().toISOString(),
       order_index: task.orderIndex,
-      is_active: 0
+      is_active: 0,
     };
 
     await this.db.update('tasks', taskDataToStore);
@@ -267,8 +283,12 @@ export class TaskService {
     const tasks = await this.getAllTasks();
     const totalTasks = tasks.length;
     const todoTasks = tasks.filter(t => t.status === TaskStatus.TODO).length;
-    const inProgressTasks = tasks.filter(t => t.status === TaskStatus.IN_PROGRESS).length;
-    const inReviewTasks = tasks.filter(t => t.status === TaskStatus.IN_REVIEW).length;
+    const inProgressTasks = tasks.filter(
+      t => t.status === TaskStatus.IN_PROGRESS
+    ).length;
+    const inReviewTasks = tasks.filter(
+      t => t.status === TaskStatus.IN_REVIEW
+    ).length;
     const doneTasks = tasks.filter(t => t.status === TaskStatus.DONE).length;
     const assignedTasks = tasks.filter(t => t.assignedUserId).length;
 
@@ -279,7 +299,7 @@ export class TaskService {
       inReviewTasks,
       doneTasks,
       assignedTasks,
-      unassignedTasks: totalTasks - assignedTasks
+      unassignedTasks: totalTasks - assignedTasks,
     };
   }
 
@@ -288,9 +308,11 @@ export class TaskService {
     const tasks = await this.getAllTasks();
     const lowercaseQuery = query.toLowerCase();
 
-    return tasks.filter(task =>
-      task.title.toLowerCase().includes(lowercaseQuery) ||
-      (task.description && task.description.toLowerCase().includes(lowercaseQuery))
+    return tasks.filter(
+      task =>
+        task.title.toLowerCase().includes(lowercaseQuery) ||
+        (task.description &&
+          task.description.toLowerCase().includes(lowercaseQuery))
     );
   }
 }

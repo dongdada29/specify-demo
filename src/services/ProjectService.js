@@ -20,7 +20,7 @@ export class ProjectService {
       description: project.description,
       created_at: project.createdAt,
       updated_at: project.updatedAt,
-      is_active: 1
+      is_active: 1,
     };
 
     const id = await this.db.add('projects', projectDataToStore);
@@ -39,7 +39,7 @@ export class ProjectService {
       description: row.description,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
-      isActive: row.is_active === 1
+      isActive: row.is_active === 1,
     });
   }
 
@@ -48,14 +48,17 @@ export class ProjectService {
     const rows = await this.db.getAll('projects');
     return rows
       .filter(row => row.is_active === 1)
-      .map(row => new Project({
-        id: row.id,
-        name: row.name,
-        description: row.description,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-        isActive: row.is_active === 1
-      }));
+      .map(
+        row =>
+          new Project({
+            id: row.id,
+            name: row.name,
+            description: row.description,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at,
+            isActive: row.is_active === 1,
+          })
+      );
   }
 
   // Update project
@@ -78,7 +81,7 @@ export class ProjectService {
       description: updatedProject.description,
       created_at: updatedProject.createdAt,
       updated_at: new Date().toISOString(),
-      is_active: updatedProject.isActive ? 1 : 0
+      is_active: updatedProject.isActive ? 1 : 0,
     };
 
     await this.db.update('projects', projectDataToStore);
@@ -98,7 +101,7 @@ export class ProjectService {
       description: project.description,
       created_at: project.createdAt,
       updated_at: new Date().toISOString(),
-      is_active: 0
+      is_active: 0,
     };
 
     await this.db.update('projects', projectDataToStore);
@@ -114,7 +117,7 @@ export class ProjectService {
     return {
       totalProjects,
       activeProjects,
-      inactiveProjects: totalProjects - activeProjects
+      inactiveProjects: totalProjects - activeProjects,
     };
   }
 
@@ -123,9 +126,11 @@ export class ProjectService {
     const projects = await this.getAllProjects();
     const lowercaseQuery = query.toLowerCase();
 
-    return projects.filter(project =>
-      project.name.toLowerCase().includes(lowercaseQuery) ||
-      (project.description && project.description.toLowerCase().includes(lowercaseQuery))
+    return projects.filter(
+      project =>
+        project.name.toLowerCase().includes(lowercaseQuery) ||
+        (project.description &&
+          project.description.toLowerCase().includes(lowercaseQuery))
     );
   }
 }

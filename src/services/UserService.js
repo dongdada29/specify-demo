@@ -20,7 +20,7 @@ export class UserService {
       role: user.role,
       color: user.color,
       created_at: user.createdAt,
-      is_active: 1
+      is_active: 1,
     };
 
     const id = await this.db.add('users', userDataToStore);
@@ -39,7 +39,7 @@ export class UserService {
       role: row.role,
       color: row.color,
       createdAt: row.created_at,
-      isActive: row.is_active === 1
+      isActive: row.is_active === 1,
     });
   }
 
@@ -48,14 +48,17 @@ export class UserService {
     const rows = await this.db.getAll('users');
     return rows
       .filter(row => row.is_active === 1)
-      .map(row => new User({
-        id: row.id,
-        name: row.name,
-        role: row.role,
-        color: row.color,
-        createdAt: row.created_at,
-        isActive: row.is_active === 1
-      }));
+      .map(
+        row =>
+          new User({
+            id: row.id,
+            name: row.name,
+            role: row.role,
+            color: row.color,
+            createdAt: row.created_at,
+            isActive: row.is_active === 1,
+          })
+      );
   }
 
   // Get users by role
@@ -63,14 +66,17 @@ export class UserService {
     const rows = await this.db.getAllByIndex('users', 'role', role);
     return rows
       .filter(row => row.is_active === 1)
-      .map(row => new User({
-        id: row.id,
-        name: row.name,
-        role: row.role,
-        color: row.color,
-        createdAt: row.created_at,
-        isActive: row.is_active === 1
-      }));
+      .map(
+        row =>
+          new User({
+            id: row.id,
+            name: row.name,
+            role: row.role,
+            color: row.color,
+            createdAt: row.created_at,
+            isActive: row.is_active === 1,
+          })
+      );
   }
 
   // Update user
@@ -94,7 +100,7 @@ export class UserService {
       color: updatedUser.color,
       created_at: updatedUser.createdAt,
       updated_at: new Date().toISOString(),
-      is_active: updatedUser.isActive ? 1 : 0
+      is_active: updatedUser.isActive ? 1 : 0,
     };
 
     await this.db.update('users', userDataToStore);
@@ -115,7 +121,7 @@ export class UserService {
       color: user.color,
       created_at: user.createdAt,
       updated_at: new Date().toISOString(),
-      is_active: 0
+      is_active: 0,
     };
 
     await this.db.update('users', userDataToStore);
@@ -126,14 +132,16 @@ export class UserService {
   async getUserStats() {
     const users = await this.getAllUsers();
     const totalUsers = users.length;
-    const productManagers = users.filter(u => u.role === UserRole.PRODUCT_MANAGER).length;
+    const productManagers = users.filter(
+      u => u.role === UserRole.PRODUCT_MANAGER
+    ).length;
     const engineers = users.filter(u => u.role === UserRole.ENGINEER).length;
 
     return {
       totalUsers,
       productManagers,
       engineers,
-      activeUsers: users.filter(u => u.isActive).length
+      activeUsers: users.filter(u => u.isActive).length,
     };
   }
 
@@ -142,9 +150,10 @@ export class UserService {
     const users = await this.getAllUsers();
     const lowercaseQuery = query.toLowerCase();
 
-    return users.filter(user =>
-      user.name.toLowerCase().includes(lowercaseQuery) ||
-      UserRoleNames[user.role].toLowerCase().includes(lowercaseQuery)
+    return users.filter(
+      user =>
+        user.name.toLowerCase().includes(lowercaseQuery) ||
+        UserRoleNames[user.role].toLowerCase().includes(lowercaseQuery)
     );
   }
 }

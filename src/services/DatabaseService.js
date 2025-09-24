@@ -17,20 +17,20 @@ export class DatabaseService {
   async connect() {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, this.dbVersion);
-      
+
       request.onerror = () => {
         console.error('Error opening IndexedDB:', request.error);
         reject(request.error);
       };
-      
+
       request.onsuccess = () => {
         this.db = request.result;
         this.isConnected = true;
         console.log('Connected to IndexedDB');
         resolve();
       };
-      
-      request.onupgradeneeded = (event) => {
+
+      request.onupgradeneeded = event => {
         const db = event.target.result;
         this.createTables(db);
       };
@@ -57,29 +57,45 @@ export class DatabaseService {
   createTables(db) {
     // Users store
     if (!db.objectStoreNames.contains('users')) {
-      const userStore = db.createObjectStore('users', { keyPath: 'id', autoIncrement: true });
+      const userStore = db.createObjectStore('users', {
+        keyPath: 'id',
+        autoIncrement: true,
+      });
       userStore.createIndex('name', 'name', { unique: true });
       userStore.createIndex('role', 'role', { unique: false });
     }
 
     // Projects store
     if (!db.objectStoreNames.contains('projects')) {
-      const projectStore = db.createObjectStore('projects', { keyPath: 'id', autoIncrement: true });
+      const projectStore = db.createObjectStore('projects', {
+        keyPath: 'id',
+        autoIncrement: true,
+      });
       projectStore.createIndex('name', 'name', { unique: true });
     }
 
     // Tasks store
     if (!db.objectStoreNames.contains('tasks')) {
-      const taskStore = db.createObjectStore('tasks', { keyPath: 'id', autoIncrement: true });
+      const taskStore = db.createObjectStore('tasks', {
+        keyPath: 'id',
+        autoIncrement: true,
+      });
       taskStore.createIndex('project_id', 'project_id', { unique: false });
-      taskStore.createIndex('assigned_user_id', 'assigned_user_id', { unique: false });
+      taskStore.createIndex('assigned_user_id', 'assigned_user_id', {
+        unique: false,
+      });
       taskStore.createIndex('status', 'status', { unique: false });
-      taskStore.createIndex('status_order', ['status', 'order_index'], { unique: false });
+      taskStore.createIndex('status_order', ['status', 'order_index'], {
+        unique: false,
+      });
     }
 
     // Comments store
     if (!db.objectStoreNames.contains('comments')) {
-      const commentStore = db.createObjectStore('comments', { keyPath: 'id', autoIncrement: true });
+      const commentStore = db.createObjectStore('comments', {
+        keyPath: 'id',
+        autoIncrement: true,
+      });
       commentStore.createIndex('task_id', 'task_id', { unique: false });
       commentStore.createIndex('author_id', 'author_id', { unique: false });
       commentStore.createIndex('created_at', 'created_at', { unique: false });
@@ -87,7 +103,10 @@ export class DatabaseService {
 
     // Kanban columns store
     if (!db.objectStoreNames.contains('kanban_columns')) {
-      const columnStore = db.createObjectStore('kanban_columns', { keyPath: 'id', autoIncrement: true });
+      const columnStore = db.createObjectStore('kanban_columns', {
+        keyPath: 'id',
+        autoIncrement: true,
+      });
       columnStore.createIndex('status', 'status', { unique: true });
       columnStore.createIndex('order_index', 'order_index', { unique: false });
     }
@@ -109,11 +128,41 @@ export class DatabaseService {
 
   async seedUsers() {
     const users = [
-      { name: 'Alice Johnson', role: 1, color: '#FF6B6B', created_at: new Date().toISOString(), is_active: 1 },
-      { name: 'Bob Smith', role: 2, color: '#4ECDC4', created_at: new Date().toISOString(), is_active: 1 },
-      { name: 'Carol Davis', role: 2, color: '#45B7D1', created_at: new Date().toISOString(), is_active: 1 },
-      { name: 'David Wilson', role: 2, color: '#96CEB4', created_at: new Date().toISOString(), is_active: 1 },
-      { name: 'Eva Brown', role: 2, color: '#FFEAA7', created_at: new Date().toISOString(), is_active: 1 },
+      {
+        name: 'Alice Johnson',
+        role: 1,
+        color: '#FF6B6B',
+        created_at: new Date().toISOString(),
+        is_active: 1,
+      },
+      {
+        name: 'Bob Smith',
+        role: 2,
+        color: '#4ECDC4',
+        created_at: new Date().toISOString(),
+        is_active: 1,
+      },
+      {
+        name: 'Carol Davis',
+        role: 2,
+        color: '#45B7D1',
+        created_at: new Date().toISOString(),
+        is_active: 1,
+      },
+      {
+        name: 'David Wilson',
+        role: 2,
+        color: '#96CEB4',
+        created_at: new Date().toISOString(),
+        is_active: 1,
+      },
+      {
+        name: 'Eva Brown',
+        role: 2,
+        color: '#FFEAA7',
+        created_at: new Date().toISOString(),
+        is_active: 1,
+      },
     ];
 
     for (const user of users) {
@@ -123,9 +172,27 @@ export class DatabaseService {
 
   async seedProjects() {
     const projects = [
-      { name: 'Website Redesign', description: 'Modernize company website', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), is_active: 1 },
-      { name: 'Mobile App', description: 'Develop mobile application', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), is_active: 1 },
-      { name: 'API Integration', description: 'Integrate with third-party services', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), is_active: 1 },
+      {
+        name: 'Website Redesign',
+        description: 'Modernize company website',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        is_active: 1,
+      },
+      {
+        name: 'Mobile App',
+        description: 'Develop mobile application',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        is_active: 1,
+      },
+      {
+        name: 'API Integration',
+        description: 'Integrate with third-party services',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        is_active: 1,
+      },
     ];
 
     for (const project of projects) {
@@ -157,7 +224,10 @@ export class DatabaseService {
 
       for (let i = 0; i < taskCount; i++) {
         const status = Math.floor(Math.random() * 4) + 1; // 1-4
-        const assignedUserId = Math.random() > 0.3 ? users[Math.floor(Math.random() * users.length)].id : null;
+        const assignedUserId =
+          Math.random() > 0.3
+            ? users[Math.floor(Math.random() * users.length)].id
+            : null;
 
         await this.add('tasks', {
           title: `Task ${i + 1}`,
@@ -180,7 +250,7 @@ export class DatabaseService {
       const transaction = this.db.transaction([storeName], 'readwrite');
       const store = transaction.objectStore(storeName);
       const request = store.add(data);
-      
+
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
@@ -191,7 +261,7 @@ export class DatabaseService {
       const transaction = this.db.transaction([storeName], 'readonly');
       const store = transaction.objectStore(storeName);
       const request = store.get(id);
-      
+
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
@@ -202,7 +272,7 @@ export class DatabaseService {
       const transaction = this.db.transaction([storeName], 'readonly');
       const store = transaction.objectStore(storeName);
       const request = store.getAll();
-      
+
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
@@ -213,7 +283,7 @@ export class DatabaseService {
       const transaction = this.db.transaction([storeName], 'readwrite');
       const store = transaction.objectStore(storeName);
       const request = store.put(data);
-      
+
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
@@ -224,7 +294,7 @@ export class DatabaseService {
       const transaction = this.db.transaction([storeName], 'readwrite');
       const store = transaction.objectStore(storeName);
       const request = store.delete(id);
-      
+
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
@@ -237,7 +307,7 @@ export class DatabaseService {
       const store = transaction.objectStore(storeName);
       const target = indexName ? store.index(indexName) : store;
       const request = range ? target.getAll(range) : target.getAll();
-      
+
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
@@ -249,7 +319,7 @@ export class DatabaseService {
       const store = transaction.objectStore(storeName);
       const index = store.index(indexName);
       const request = index.get(value);
-      
+
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
@@ -261,7 +331,7 @@ export class DatabaseService {
       const store = transaction.objectStore(storeName);
       const index = store.index(indexName);
       const request = index.getAll(value);
-      
+
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });

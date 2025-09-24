@@ -21,7 +21,7 @@ export class CommentService {
       author_id: comment.authorId,
       created_at: comment.createdAt,
       updated_at: comment.updatedAt,
-      is_active: 1
+      is_active: 1,
     };
 
     const id = await this.db.add('comments', commentDataToStore);
@@ -41,7 +41,7 @@ export class CommentService {
       authorId: row.author_id,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
-      isActive: row.is_active === 1
+      isActive: row.is_active === 1,
     });
   }
 
@@ -50,15 +50,18 @@ export class CommentService {
     const rows = await this.db.getAll('comments');
     return rows
       .filter(row => row.is_active === 1)
-      .map(row => new Comment({
-        id: row.id,
-        content: row.content,
-        taskId: row.task_id,
-        authorId: row.author_id,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-        isActive: row.is_active === 1
-      }));
+      .map(
+        row =>
+          new Comment({
+            id: row.id,
+            content: row.content,
+            taskId: row.task_id,
+            authorId: row.author_id,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at,
+            isActive: row.is_active === 1,
+          })
+      );
   }
 
   // Get comments by task
@@ -67,15 +70,18 @@ export class CommentService {
     return rows
       .filter(row => row.is_active === 1)
       .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-      .map(row => new Comment({
-        id: row.id,
-        content: row.content,
-        taskId: row.task_id,
-        authorId: row.author_id,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-        isActive: row.is_active === 1
-      }));
+      .map(
+        row =>
+          new Comment({
+            id: row.id,
+            content: row.content,
+            taskId: row.task_id,
+            authorId: row.author_id,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at,
+            isActive: row.is_active === 1,
+          })
+      );
   }
 
   // Get comments by author
@@ -84,15 +90,18 @@ export class CommentService {
     return rows
       .filter(row => row.is_active === 1)
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      .map(row => new Comment({
-        id: row.id,
-        content: row.content,
-        taskId: row.task_id,
-        authorId: row.author_id,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-        isActive: row.is_active === 1
-      }));
+      .map(
+        row =>
+          new Comment({
+            id: row.id,
+            content: row.content,
+            taskId: row.task_id,
+            authorId: row.author_id,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at,
+            isActive: row.is_active === 1,
+          })
+      );
   }
 
   // Update comment
@@ -116,7 +125,7 @@ export class CommentService {
       author_id: updatedComment.authorId,
       created_at: updatedComment.createdAt,
       updated_at: new Date().toISOString(),
-      is_active: updatedComment.isActive ? 1 : 0
+      is_active: updatedComment.isActive ? 1 : 0,
     };
 
     await this.db.update('comments', commentDataToStore);
@@ -137,7 +146,7 @@ export class CommentService {
       author_id: comment.authorId,
       created_at: comment.createdAt,
       updated_at: new Date().toISOString(),
-      is_active: 0
+      is_active: 0,
     };
 
     await this.db.update('comments', commentDataToStore);
@@ -158,7 +167,10 @@ export class CommentService {
     return {
       totalComments,
       recentComments,
-      averageCommentsPerTask: totalComments > 0 ? totalComments / new Set(comments.map(c => c.taskId)).size : 0
+      averageCommentsPerTask:
+        totalComments > 0
+          ? totalComments / new Set(comments.map(c => c.taskId)).size
+          : 0,
     };
   }
 
